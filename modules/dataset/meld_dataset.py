@@ -43,7 +43,7 @@ class MELDDataset(Dataset):
         # Get the audio waveform
         waveform = self.get_waveform(dialogue_id, utterance_id)
 
-        # Get the features as a tensor
+        # Get the audio features as a dict containing pt tensors
         audio_features = self.feature_extractor(
             waveform,
             sampling_rate=self.sample_rate,
@@ -54,8 +54,8 @@ class MELDDataset(Dataset):
             return_tensors='pt'
         )
 
-        # Convert the waveform to a tensor
-        waveform = torch.from_numpy(waveform)
+        # From the audio features dict, extract only the input values
+        audio_features = audio_features['input_values']
 
         # Extract the label from the label row as a one-hot vector
         one_hot_label = self.one_hot(label_row['Emotion'])
@@ -66,8 +66,7 @@ class MELDDataset(Dataset):
             utterance_id
         ])
 
-
-        return audio_features, waveform, one_hot_label, metadata
+        return audio_features, one_hot_label, metadata
 
     def get_waveform(self, dialogue_id, utterance_id):
         # Get the audio file path
@@ -92,7 +91,6 @@ class MELDDataset(Dataset):
         waveform = waveform[0].numpy()
 
         return waveform
-
 
     def one_hot(self, emotion):
         # Create a one-hot vector

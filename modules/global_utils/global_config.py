@@ -37,14 +37,15 @@ LABELS_AND_DATA_PATHS_DICT = {
 
 # Audio parameters
 SAMPLE_RATE = 16000
-MAX_AUDIO_LENGTH_SECONDS = 10.0
+MAX_AUDIO_LENGTH_SECONDS = 5.0
 
 # Model parameters
-MODEL_NAME = 'facebook/hubert-large-ll60k'
+MODEL_NAME = 'facebook/hubert-base-ls960'
+HUBERT_HIDDEN_SIZE = 768
 
 # Static dataloader parameters
-TRAINING_NUM_WORKERS = 4
-VALIDATION_NUM_WORKERS = 4
+TRAINING_NUM_WORKERS = 0
+VALIDATION_NUM_WORKERS = 0
 VALIDATION_BATCH_SIZE = 32
 
 # Emotion label to one-hot index mapping
@@ -57,6 +58,9 @@ EMOTION_LABEL_TO_ONE_HOT_INDEX = {
     'disgust': 5,
     'anger': 6
 }
+
+# Number of emotion classes
+NUM_EMOTION_CLASSES = len(EMOTION_LABEL_TO_ONE_HOT_INDEX)
 
 
 # Emotion weights

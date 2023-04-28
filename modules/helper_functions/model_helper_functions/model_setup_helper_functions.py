@@ -7,6 +7,7 @@ import torchvision
 import torch.nn as nn
 from torch.optim import AdamW
 import global_utils.global_config as global_config
+from model.custom_hubert import CustomHubert
 
 def get_dataset(
         data_id, 
@@ -25,14 +26,12 @@ def get_dataset(
 def get_train_and_validation_dataset_and_dataloader(
         training_data_ids,
         validation_data_ids,
-        labels_and_data_paths_dict,
         train_batch_size,
         project_base_path       
 ):    
     # Get the train dataset and dataloader
     train_dataset, train_dataloader = get_train_dataset_and_dataloader(
         training_data_ids=training_data_ids,
-        labels_and_data_paths_dict=labels_and_data_paths_dict,
         train_batch_size=train_batch_size,
         project_base_path=project_base_path    
     )
@@ -40,7 +39,6 @@ def get_train_and_validation_dataset_and_dataloader(
     # Get the validation dataset and dataloader
     validation_dataset, validation_dataloader = get_validation_dataset_and_dataloader(
         validation_data_ids=validation_data_ids,
-        labels_and_data_paths_dict=labels_and_data_paths_dict,
         project_base_path=project_base_path
     )
 
@@ -48,7 +46,6 @@ def get_train_and_validation_dataset_and_dataloader(
 
 def get_train_dataset_and_dataloader(
         training_data_ids,
-        labels_and_data_paths_dict,
         train_batch_size,
         project_base_path
     ):
@@ -78,7 +75,6 @@ def get_train_dataset_and_dataloader(
 
 def get_validation_dataset_and_dataloader(
         validation_data_ids,
-        labels_and_data_paths_dict,
         project_base_path
     ):
     # Get the all the datasets we want to validate on
@@ -109,17 +105,10 @@ def get_augmentation(transform_id):
     raise KeyError(f'Transform: \'{transform_id}\' not found')
 
 def build_transform_module_lists_dict(
-        augmentation_config_dict,
-        sample_dimensions
+        augmentation_config_dict
     ):
     # Standard train transforms
-    train_input_transform_module_list = [
-        torchvision.transforms.Resize(sample_dimensions),
-        #torchvision.transforms.Normalize(
-        #    mean=[0.0126, 0.0126, 0.0126],
-        #    std=[0.7618, 0.7618, 0.7618]
-        #),
-    ]
+    train_input_transform_module_list = []
     train_target_transform_module_list = []
     train_both_transform_module_list = []
     
@@ -136,13 +125,7 @@ def build_transform_module_lists_dict(
             train_both_transform_module_list.append(get_augmentation(train_both_augmentation_id))
 
     # Standard validation transforms
-    validation_input_transform_module_list = [
-        torchvision.transforms.Resize(sample_dimensions),
-        #torchvision.transforms.Normalize(
-        #    mean=[0.0126, 0.0126, 0.0126],
-        #    std=[0.7618, 0.7618, 0.7618]
-        #)
-    ]
+    validation_input_transform_module_list = []
     validation_target_transform_module_list = []
     validation_both_transform_module_list = []
 
@@ -167,12 +150,17 @@ def build_transform_module_lists_dict(
     }
 
 def get_model(model_id, model_config_dict):
+    # Get the model
     model = None
-    if model_id == 'resnet_18_untrained':
-        pass
+    if model_id == 'hubert':
+        model = CustomHubert(model_config=model_config_dict)
     else:
         raise KeyError(f'Model: \'{model_id}\' not found')
     
+    # Freeze the feature extractor layers of hubert if specified
+    if model_config_dict['freeze_feature_extractor']:
+        model.base_hubert_model.feature_extractor._freeze_parameters() # type: ignore
+
     return model
 
 def get_loss_function(loss_function_id):
