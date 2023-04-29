@@ -103,3 +103,6 @@ class MELDDataset(Dataset):
         waveform = waveform[0].numpy()
 
         return waveform
+    
+    def get_labels_df(self):
+        return self.labels

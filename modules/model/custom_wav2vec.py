@@ -3,7 +3,7 @@ import torch.nn as nn
 import transformers
 import global_utils.global_config as global_config
 
-class CustomHubert(nn.Module):
+class CustomWav2Vec2(nn.Module):
     def __init__(
             self,
             model_config
@@ -15,7 +15,7 @@ class CustomHubert(nn.Module):
         self.pooling_strategy = model_config['pooling_strategy']
 
         # Set the base hubert model
-        self.base_hubert_model = transformers.HubertModel.from_pretrained(global_config.MODEL_NAME)
+        self.base_wav2vec_model = transformers.Wav2Vec2Model.from_pretrained(global_config.MODEL_NAME)
 
         # Set the classification head
         self.classification_head = nn.Sequential(
@@ -28,8 +28,8 @@ class CustomHubert(nn.Module):
         )
 
     def forward(self, audio_features):
-        # Get the last hidden state from the base hubert model
-        last_hidden_state = self.base_hubert_model(
+        # Get the last hidden state from the base wav2vec model
+        last_hidden_state = self.base_wav2vec_model(
             input_values=audio_features[:,0,:],
             output_hidden_states=False,
             return_dict=True

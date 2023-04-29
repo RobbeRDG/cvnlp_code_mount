@@ -47,13 +47,13 @@ SAMPLE_RATE = 16000
 MAX_AUDIO_LENGTH_SECONDS = 5.0
 
 # Model parameters
-MODEL_NAME = 'facebook/hubert-base-ls960'
+MODEL_NAME = 'facebook/wav2vec2-base'
 HUBERT_HIDDEN_SIZE = 768
 
 # Static dataloader parameters
 TRAINING_NUM_WORKERS = 4
 VALIDATION_NUM_WORKERS = 4
-VALIDATION_BATCH_SIZE = 32
+VALIDATION_BATCH_SIZE = 16
 
 # Emotion label to one-hot index mapping
 EMOTION_LABEL_TO_ONE_HOT_INDEX = {
@@ -74,7 +74,7 @@ NUM_EMOTION_CLASSES = len(EMOTION_LABEL_TO_ONE_HOT_INDEX)
 
 
 # Emotion weights
-EMOTION_WEIGHTS = {
+EMOTION_WEIGHTS_DICT = {
     'neutral': 2.129894344313238,
     'surprise': 8.378973105134474,
     'fear': 38.29050279329609,
