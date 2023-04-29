@@ -1,37 +1,44 @@
 from os.path import join
 import pandas as pd
+from helper_functions.label_encoder import LabelEncoder
 
 # Set the base path
 BASE_PATH = 'code_mount'
 
 # Set the dataset folder paths
 DATASET_FOLDER_PATH = join(BASE_PATH, 'meld_dataset')
-TRAIN_DATA_FOLDER_PATH = join(DATASET_FOLDER_PATH, 'train_data/audio')
-DEV_DATA_FOLDER_PATH = join(DATASET_FOLDER_PATH, 'dev_data/audio')
-TEST_DATA_FOLDER_PATH = join(DATASET_FOLDER_PATH, 'test_data/audio')
+TRAIN_DATA_FOLDER_PATH = join(DATASET_FOLDER_PATH, 'train_data')
+TRAIN_AUDIO_DATA_FOLDER_PATH = join(TRAIN_DATA_FOLDER_PATH, 'audio')
+TRAIN_VIDEO_DATA_FOLDER_PATH = join(TRAIN_DATA_FOLDER_PATH, 'video')
+DEV_DATA_FOLDER_PATH = join(DATASET_FOLDER_PATH, 'dev_data')
+DEV_AUDIO_DATA_FOLDER_PATH = join(DEV_DATA_FOLDER_PATH, 'audio')
+DEV_VIDEO_DATA_FOLDER_PATH = join(DEV_DATA_FOLDER_PATH, 'video')
+TEST_DATA_FOLDER_PATH = join(DATASET_FOLDER_PATH, 'test_data')
+TEST_AUDIO_DATA_FOLDER_PATH = join(TEST_DATA_FOLDER_PATH, 'audio')
+TEST_VIDEO_DATA_FOLDER_PATH = join(TEST_DATA_FOLDER_PATH, 'video')
 
 # Set the labels path
 LABELS_FOLDER_PATH = join(DATASET_FOLDER_PATH, 'labels')
-TRAIN_LABELS = join(LABELS_FOLDER_PATH, 'train_sent_emo_transformed.csv')
-DEV_LABELS = join(LABELS_FOLDER_PATH, 'dev_sent_emo_transformed.csv')
-TEST_LABELS = join(LABELS_FOLDER_PATH, 'test_sent_emo_transformed.csv')
-FILTERED_TRAIN_LABELS = join(LABELS_FOLDER_PATH, 'train_sent_emo_transformed_filtered.csv')
-FILTERED_DEV_LABELS = join(LABELS_FOLDER_PATH, 'dev_sent_emo_transformed_filtered.csv')
-FILTERED_TEST_LABELS = join(LABELS_FOLDER_PATH, 'test_sent_emo_transformed_filtered.csv')
+TRAIN_LABELS_RAW = join(LABELS_FOLDER_PATH, 'train_sent_emo.csv')
+DEV_LABELS_RAW = join(LABELS_FOLDER_PATH, 'dev_sent_emo.csv')
+TEST_LABELS_RAW = join(LABELS_FOLDER_PATH, 'test_sent_emo.csv')
+TRAIN_LABELS_CLEAN = join(LABELS_FOLDER_PATH, 'train_sent_emo_transformed_clean.csv')
+DEV_LABELS_CLEAN = join(LABELS_FOLDER_PATH, 'dev_sent_emo_transformed_clean.csv')
+TEST_LABELS_CLEAN = join(LABELS_FOLDER_PATH, 'test_sent_emo_transformed_clean.csv')
 
 # Set the labels and dataset paths combinations
 LABELS_AND_DATA_PATHS_DICT = {
     'train': {
-        'labels': TRAIN_LABELS,
-        'data': TRAIN_DATA_FOLDER_PATH
+        'labels': TRAIN_LABELS_CLEAN,
+        'data': TRAIN_AUDIO_DATA_FOLDER_PATH
     },
     'dev': {
-        'labels': DEV_LABELS,
-        'data': DEV_DATA_FOLDER_PATH
+        'labels': DEV_LABELS_CLEAN,
+        'data': DEV_AUDIO_DATA_FOLDER_PATH
     },
     'test': {
-        'labels': TEST_LABELS,
-        'data': TEST_DATA_FOLDER_PATH
+        'labels': TEST_LABELS_CLEAN,
+        'data': TEST_AUDIO_DATA_FOLDER_PATH
     }
 }
 
@@ -44,8 +51,8 @@ MODEL_NAME = 'facebook/hubert-base-ls960'
 HUBERT_HIDDEN_SIZE = 768
 
 # Static dataloader parameters
-TRAINING_NUM_WORKERS = 0
-VALIDATION_NUM_WORKERS = 0
+TRAINING_NUM_WORKERS = 4
+VALIDATION_NUM_WORKERS = 4
 VALIDATION_BATCH_SIZE = 32
 
 # Emotion label to one-hot index mapping
@@ -58,6 +65,9 @@ EMOTION_LABEL_TO_ONE_HOT_INDEX = {
     'disgust': 5,
     'anger': 6
 }
+
+# Emotion labels encoder
+EMOTION_LABEL_ENCODER = LabelEncoder(EMOTION_LABEL_TO_ONE_HOT_INDEX)
 
 # Number of emotion classes
 NUM_EMOTION_CLASSES = len(EMOTION_LABEL_TO_ONE_HOT_INDEX)

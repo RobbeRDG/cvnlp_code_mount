@@ -18,7 +18,7 @@ class MELDDataset(Dataset):
         self.sample_rate = global_config.SAMPLE_RATE
         self.max_audio_length_seconds = global_config.MAX_AUDIO_LENGTH_SECONDS
         self.max_audio_length_samples = int(self.max_audio_length_seconds * self.sample_rate)
-        self.emotion_to_one_hot_index_mapping = global_config.EMOTION_LABEL_TO_ONE_HOT_INDEX
+        self.emotion_label_encoder = global_config.EMOTION_LABEL_ENCODER
 
         # Set the feature extractor
         self.feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
@@ -33,32 +33,25 @@ class MELDDataset(Dataset):
         label_row = self.labels.iloc[index]
 
         # Process the item
-        return self.process_item(label_row)        
+        return self.process_item(label_row, 'extracted_features')
 
-    def process_item(self, label_row):
-        # Extract the dialogue and utterance id
+    def get_waveform(self, index):
+        # Get the label
+        label_row = self.labels.iloc[index]
+
+        # Process the item
+        return self.process_item(label_row, 'waveform')
+
+    def process_item(self, label_row, out_type):
+        # Extract label row info
         dialogue_id = label_row['Dialogue_ID']
         utterance_id = label_row['Utterance_ID']
 
         # Get the audio waveform
-        waveform = self.get_waveform(dialogue_id, utterance_id)
-
-        # Get the audio features as a dict containing pt tensors
-        audio_features = self.feature_extractor(
-            waveform,
-            sampling_rate=self.sample_rate,
-            padding='max_length',
-            max_length=self.max_audio_length_samples,
-            padding_value=0.0,
-            truncation=True,
-            return_tensors='pt'
-        )
-
-        # From the audio features dict, extract only the input values
-        audio_features = audio_features['input_values']
+        waveform = self.load_waveform(dialogue_id, utterance_id)
 
         # Extract the label from the label row as a one-hot vector
-        one_hot_label = self.one_hot(label_row['Emotion'])
+        one_hot_label = self.emotion_label_encoder.label_to_one_hot(label_row['Emotion'])
 
         # Create a metadata tensor
         metadata = torch.tensor([
@@ -66,9 +59,28 @@ class MELDDataset(Dataset):
             utterance_id
         ])
 
-        return audio_features, one_hot_label, metadata
+        # Get the audio features as a dict containing pt tensors
+        if out_type == 'extracted_features':
+            audio_features = self.feature_extractor(
+                waveform,
+                sampling_rate=self.sample_rate,
+                padding='max_length',
+                max_length=self.max_audio_length_samples,
+                padding_value=0.0,
+                truncation=True,
+                return_tensors='pt'
+            )
 
-    def get_waveform(self, dialogue_id, utterance_id):
+            # From the audio features dict, extract only the input values
+            audio_features = audio_features['input_values']
+
+            return audio_features, one_hot_label, metadata
+        elif out_type == 'waveform':
+            return waveform, one_hot_label, metadata
+        else:
+            raise Exception('Invalid out_type')
+
+    def load_waveform(self, dialogue_id, utterance_id):
         # Get the audio file path
         audio_file_name = f'dia{dialogue_id}_utt{utterance_id}.wav'
         audio_file_path = join(self.audio_folder_path, audio_file_name)
@@ -91,12 +103,3 @@ class MELDDataset(Dataset):
         waveform = waveform[0].numpy()
 
         return waveform
-
-    def one_hot(self, emotion):
-        # Create a one-hot vector
-        one_hot_vector = torch.zeros(len(self.emotion_to_one_hot_index_mapping))
-
-        # Set the emotion index to 1
-        one_hot_vector[self.emotion_to_one_hot_index_mapping[emotion]] = 1
-
-        return one_hot_vector
