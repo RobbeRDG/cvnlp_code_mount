@@ -16,7 +16,7 @@ class MELDDataset(Dataset):
         self.labels = labels
         self.audio_folder_path = audio_folder_path
         self.sample_rate = global_config.SAMPLE_RATE
-        self.max_audio_length_seconds = global_config.MAX_AUDIO_LENGTH_SECONDS
+        self.max_audio_length_seconds = global_config.MAX_SPEECH_MODEL_AUDIO_LENGTH_SECONDS
         self.max_audio_length_samples = int(self.max_audio_length_seconds * self.sample_rate)
         self.emotion_label_encoder = global_config.EMOTION_LABEL_ENCODER
 

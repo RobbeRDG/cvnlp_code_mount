@@ -13,9 +13,32 @@ class CustomWav2Vec2(nn.Module):
         # Extract the model config
         self.dropout_probability = model_config['dropout_probability']
         self.pooling_strategy = model_config['pooling_strategy']
+        self.freeze_feature_extractor = model_config['freeze_feature_extractor']
+        self.freeze_feature_projection = model_config['freeze_feature_projection']
+        self.unfreeze_encoder_layers_count = model_config['unfreeze_encoder_layers_count']
 
         # Set the base hubert model
         self.base_wav2vec_model = transformers.Wav2Vec2Model.from_pretrained(global_config.MODEL_NAME)
+
+        # Freeze the feature extractor layers of wav2vec if specified
+        if self.freeze_feature_extractor:
+            self.base_wav2vec_model.feature_extractor._freeze_parameters() # type: ignore
+
+        # Freeze the feature projection layers of wav2vec if specified
+        if self.freeze_feature_projection:
+            for param in self.base_wav2vec_model.feature_projection.parameters():
+                param.requires_grad = False
+
+        '''
+        # Freeze every encoder layer of the base wav2vec model apart from the top specified number of layers
+        # First freeze all the layers
+        for param in self.base_wav2vec_model.parameters():
+            param.requires_grad = False
+        if self.unfreeze_encoder_layers_count:
+            # Then unfreeze the top specified number of layers
+            for param in self.base_wav2vec_model.encoder.layers[-self.unfreeze_encoder_layers_count:].parameters():
+                param.requires_grad = True
+        '''
 
         # Set the classification head
         self.classification_head = nn.Sequential(

@@ -22,9 +22,9 @@ LABELS_FOLDER_PATH = join(DATASET_FOLDER_PATH, 'labels')
 TRAIN_LABELS_RAW = join(LABELS_FOLDER_PATH, 'train_sent_emo.csv')
 DEV_LABELS_RAW = join(LABELS_FOLDER_PATH, 'dev_sent_emo.csv')
 TEST_LABELS_RAW = join(LABELS_FOLDER_PATH, 'test_sent_emo.csv')
-TRAIN_LABELS_CLEAN = join(LABELS_FOLDER_PATH, 'train_sent_emo_transformed_clean.csv')
-DEV_LABELS_CLEAN = join(LABELS_FOLDER_PATH, 'dev_sent_emo_transformed_clean.csv')
-TEST_LABELS_CLEAN = join(LABELS_FOLDER_PATH, 'test_sent_emo_transformed_clean.csv')
+TRAIN_LABELS_CLEAN = join(LABELS_FOLDER_PATH, 'train_sent_clean.csv')
+DEV_LABELS_CLEAN = join(LABELS_FOLDER_PATH, 'dev_sent_clean.csv')
+TEST_LABELS_CLEAN = join(LABELS_FOLDER_PATH, 'test_sent_clean.csv')
 
 # Set the labels and dataset paths combinations
 LABELS_AND_DATA_PATHS_DICT = {
@@ -44,7 +44,8 @@ LABELS_AND_DATA_PATHS_DICT = {
 
 # Audio parameters
 SAMPLE_RATE = 16000
-MAX_AUDIO_LENGTH_SECONDS = 5.0
+MAX_AUDIO_LENGTH_SECONDS = 15.0
+MAX_SPEECH_MODEL_AUDIO_LENGTH_SECONDS = 5.0
 
 # Model parameters
 MODEL_NAME = 'facebook/wav2vec2-base'
