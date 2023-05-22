@@ -36,6 +36,12 @@ class LabelEncoder():
     def label_to_one_hot(self, label):
         return torch.tensor(self.label_to_one_hot_mapping[label])
     
+    def label_to_one_hot_index(self, label):
+        return self.label_to_one_hot_index_mapping[label]
+    
+    def one_hot_index_to_one_hot(self, one_hot_index):
+        return torch.tensor(self.label_to_one_hot_mapping[self.one_hot_index_to_label_mapping[one_hot_index]])
+    
     def one_hot_to_label(self, one_hot):
         # Convert the tensor to a numpy array
         one_hot = one_hot.numpy()
